@@ -318,12 +318,12 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                                 }} />
                                             <MenuOptions>
                                                 <Option onClick={() => {
-                                                    setGameInfo({ ...gameInfo, roomNo: roomInput })
                                                     if (roomInput.length > 0) {
                                                         setError("Joining Room...")
                                                         //connect to server room
                                                         if (roomInput === "123456") {
                                                             setBackSelection(oldarray => [...oldarray, selection])
+                                                            setGameInfo({ ...gameInfo, roomNo: roomInput,playAs: "Goat"  })
                                                             setSelection(4)
                                                         }
                                                         else {

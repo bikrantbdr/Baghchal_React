@@ -47,6 +47,7 @@ function App() {
         {selection == 4 && 
         <>
         <BoardComponent />
+        {console.log(gameInfo)}
         <StatusComponent history={boardhistory} peices={peicesHistory} />
         </>
         }
