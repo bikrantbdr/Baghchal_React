@@ -143,7 +143,7 @@ const Value = styled.div`
 
 
 
-const StatusComponent = ({ history, peices }) => {
+const StatusComponent = ({ history, baghCaptured, bakhraCaptured, bakhraPlaced }) => {
     return (
         <Container>
             <Status>
@@ -161,6 +161,7 @@ const StatusComponent = ({ history, peices }) => {
                     {history.map((move, index) => {
                         return (
                             <Move key={index}>
+                                {console.log(move)}
                                 <Index>{index + 1}. </Index>
                                 <GoatMove>{move[0] ? move[0] : ""}</GoatMove>
                                 <TigerMove>{move[1] ? move[1] : ""}</TigerMove>
@@ -175,15 +176,15 @@ const StatusComponent = ({ history, peices }) => {
                 <Peices>
                     <CapValue>
                         <Caption>Bagh Captured</Caption>
-                        <Value>{peices.baghCaptured} / 4 </Value>
+                        <Value>{baghCaptured} / 4 </Value>
                     </CapValue>
                     <CapValue>
                         <Caption>Bakhra Captured</Caption>
-                        <Value>{peices.bakhraCaptured} / 5 </Value>
+                        <Value>{bakhraCaptured} / 5 </Value>
                     </CapValue>
                     <CapValue>
-                        <Caption>Bakhra Placed</Caption>
-                        <Value>{peices.bakhraPlaced} / 20 </Value>
+                        <Caption>Bakhra Killed</Caption>
+                        <Value>{bakhraPlaced} / 20 </Value>
                     </CapValue>
                 </Peices>
             </Status>

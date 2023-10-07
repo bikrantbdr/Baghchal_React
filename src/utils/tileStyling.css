@@ -1,0 +1,230 @@
+:root {
+    --canvasWidth: 500px;
+    --canvasHeight: 500px;
+    
+    --triangleTileWidth: 30px;
+    --triangleTileHeight: 21px;
+
+    --squareTileWidth: 32px;
+    --squareTileHeight: 32px;
+
+    --goatPieceWidth: 50px;
+    --goatPieceHeight: 50px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8rem;
+}
+
+#canvas-board {
+    border: 1px solid black;
+    border-radius: 16px;
+    width: var(--canvasWidth);
+    height: var(--canvasHeight);
+}
+
+.wrapper {
+    position: relative;
+    /* border: 1px solid red; */
+    border-radius: 16px;
+    width: var(--canvasWidth);
+    height: var(--canvasHeight);
+    /* overflow: hidden; */
+}
+
+.container {
+    /* overflow: hidden; */
+    width: var(--canvasWidth);
+    height: var(--canvasHeight);
+}
+
+.tile-triangle {
+    position: absolute;
+    background-image: url('triangle.svg');
+    width: var(--triangleTileWidth);
+    height: var(--triangleTileHeight);
+}
+
+.tile-square {
+    position: absolute;
+    background-image: url('square.svg');
+    width: var(--squareTileWidth);
+    height: var(--squareTileHeight);
+}
+
+/* row one */
+
+.tile-triangle.top-left {
+    top: 0;
+    left: calc(0px - var(--triangleTileWidth)/2);
+    transform: rotate(-45deg);
+    transform-origin: top center;
+}
+
+.tile:nth-of-type(2) {
+    top: 0px;
+    left: calc(var(--canvasWidth)/4 - var(--triangleTileWidth)/2);
+}
+
+.tile:nth-of-type(3) {
+    top: 0px;
+    left: calc(var(--canvasWidth)/4 * 2 - var(--triangleTileWidth)/2);
+}
+
+.tile:nth-of-type(4) {
+    top: 0px;
+    left: calc(var(--canvasWidth)/4 * 3 - var(--triangleTileWidth)/2);
+}
+
+.tile-triangle.top-right {
+    top: 0;
+    right: calc(0px - var(--triangleTileWidth)/2);
+    transform: rotate(45deg);
+    transform-origin: top center;
+}
+
+/* row two */
+
+.tile:nth-of-type(6) {
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    top: calc(var(--canvasHeight)/4 + var(--triangleTileWidth)/2);
+    left: 0px;
+}
+
+.tile:nth-of-type(7) {
+    top: calc(var(--canvasHeight)/4 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(8) {
+    top: calc(var(--canvasHeight)/4 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 * 2 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(9) {
+    top: calc(var(--canvasHeight)/4 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 * 3 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(10) {
+    transform: rotate(90deg);
+    transform-origin: top right;
+    top: calc(var(--canvasHeight)/4 + var(--triangleTileWidth)/2);
+    right: 0px;
+}
+
+/* row three */
+.tile:nth-of-type(11) {
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    top: calc(var(--canvasHeight)/4 * 2 + var(--triangleTileWidth)/2);
+    left: 0px;
+}
+
+.tile:nth-of-type(12) {
+    top: calc(var(--canvasHeight)/4 * 2 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(13) {
+    top: calc(var(--canvasHeight)/4 * 2 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 * 2 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(14) {
+    top: calc(var(--canvasHeight)/4 * 2 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 * 3 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(15) {
+    transform: rotate(90deg);
+    transform-origin: top right;
+    top: calc(var(--canvasHeight)/4 * 2 + var(--triangleTileWidth)/2);
+    right: 0px;
+}
+
+/* row four */
+.tile:nth-of-type(16) {
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    top: calc(var(--canvasHeight)/4 * 3 + var(--triangleTileWidth)/2);
+    left: 0px;
+}
+
+.tile:nth-of-type(17) {
+    top: calc(var(--canvasHeight)/4 * 3 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(18) {
+    top: calc(var(--canvasHeight)/4 * 3 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 * 2 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(19) {
+    top: calc(var(--canvasHeight)/4 * 3 - var(--squareTileHeight)/2);
+    left: calc(var(--canvasWidth)/4 * 3 - var(--squareTileWidth)/2);
+}
+
+.tile:nth-of-type(20) {
+    transform: rotate(90deg);
+    transform-origin: top right;
+    top: calc(var(--canvasHeight)/4 * 3 + var(--triangleTileWidth)/2);
+    right: 0px;
+}
+
+/* row five */
+
+.tile-triangle.bottom-left {
+    bottom: calc(0px - var(--triangleTileHeight));
+    left: calc(0px - var(--triangleTileWidth)/2);
+    transform: rotate(-135deg);
+    transform-origin: top center;
+}
+
+.tile:nth-of-type(22) {
+    transform: rotate(180deg);
+    bottom: 0px;
+    left: calc(var(--canvasWidth)/4 - var(--triangleTileWidth)/2);
+}
+
+.tile:nth-of-type(23) {
+    transform: rotate(180deg);
+    bottom: 0px;
+    left: calc(var(--canvasWidth)/4 * 2 - var(--triangleTileWidth)/2);
+}
+
+.tile:nth-of-type(24) {
+    transform: rotate(180deg);
+    bottom: 0px;
+    left: calc(var(--canvasWidth)/4 * 3 - var(--triangleTileWidth)/2);
+}
+
+.tile-triangle.bottom-right {
+    bottom: calc(0px - var(--triangleTileHeight));
+    right: calc(0px - var(--triangleTileWidth)/2);
+    transform: rotate(135deg);
+    transform-origin: top center;
+}
+
+.tile {
+    cursor: pointer;
+}
+
+.piece {
+    position: absolute;
+    height: var(--goatPieceHeight);
+    width: var(--goatPieceWidth);
+    cursor: pointer;
+}

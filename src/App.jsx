@@ -1,19 +1,10 @@
 import styled from "styled-components"
+import { useState, useEffect } from "react"
+
+import { defaultBoard } from "./utils/utility_data"
 import BoardComponent from "./components/BoardComponent"
 import StatusComponent from "./components/StatusComponent"
-import { useState } from "react"
 import MenuComponent from "./components/MenuComponent"
-
-// (goat move, tiger move)
-const boardhistory = [
-  ["a4", "e5d5"],
-  ["b5",],
-]
-const peicesHistory = {
-  baghCaptured: 0,
-  bakhraCaptured: 1,
-  bakhraPlaced: 2
-}
 
 
 const Body = styled.div`
@@ -40,16 +31,31 @@ function App() {
     difficulty: "",
     roomNo: "",
   })
+  const [boardhistory, setBoardHistory] = useState([])    //   ["a4", "e5d5"],
+  const [board, setBoard] = useState({})
+
+
+  //reseting board
+  const resetBoard = () => {
+    setBoard(defaultBoard)
+    setBoardHistory([["a4", "e5d5"], ["a4", "e5d5"], ["a3",] ])
+  }
+
+  //initially setting board
+  useEffect(() => {
+    resetBoard()
+  }, [])
+
+
   return (
     <Body>
       <Container>
-        {selection !=4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} />}
-        {selection == 4 && 
-        <>
-        <BoardComponent />
-        {console.log(gameInfo)}
-        <StatusComponent history={boardhistory} peices={peicesHistory} />
-        </>
+        {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} />}
+        {selection == 4 &&
+          <>
+            <BoardComponent board={board} setBoard={setBoard} boardhistory={boardhistory} setBoardHistory={setBoardHistory} gameInfo={gameInfo} />
+            <StatusComponent history={boardhistory} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} />
+          </>
         }
       </Container>
     </Body>
