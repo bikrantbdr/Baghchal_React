@@ -17,7 +17,7 @@ const Container = styled.div`
   height: 100%;
   width: 100%;
   background: rgb(12,8,19);
-  background: linear-gradient(43deg, rgba(12,8,19,1) 0%, #3d49eb68 37%,#2c34a18f 60% , rgba(46, 35, 61, 0.466) 100%);  
+  background: linear-gradient(43deg, hsl(261.8181818181818, 40.74074074074074%, 5.294117647058823%) 0%, #3d49eb68 37%,#2c34a18f 60% , rgba(46, 35, 61, 0.466) 100%);  
   display: flex;
   justify-content: space-evenly;
   align-items: center;
