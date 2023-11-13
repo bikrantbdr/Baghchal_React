@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Ai from '../assets/Ai_icon.png'
 import Human from '../assets/human_icon.png'
 import Online from '../assets/online_icon.png'
@@ -11,7 +11,6 @@ import Close from '../assets/close_icon.png'
 const Container = styled.div`
     height: 90vh;
     width: 70vw;
-    /* border: 2px solid #fff; */
     border-radius: 14px;
     background-color: #ffffff11;
     display: flex;
@@ -194,7 +193,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                 setSelection(backSelection[backSelection.length - 1])
                 setBackSelection(backSelection.slice(0, backSelection.length - 1))
             }}>
-                <img src={Close} alt="close"  />
+                <img src={Close} alt="close" />
             </BackButton>
             {
                 //Play Against
@@ -323,7 +322,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                                         //connect to server room
                                                         if (roomInput === "123456") {
                                                             setBackSelection(oldarray => [...oldarray, selection])
-                                                            setGameInfo({ ...gameInfo, roomNo: roomInput,playAs: "Goat"  })
+                                                            setGameInfo({ ...gameInfo, roomNo: roomInput, playAs: "Goat" })
                                                             setSelection(4)
                                                         }
                                                         else {
