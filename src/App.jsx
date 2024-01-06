@@ -24,21 +24,22 @@ const Container = styled.div`
   `
 
 function App() {
-  const [selection, setSelection] = useState(0)
+  const [selection, setSelection] = useState(4)
   const [gameInfo, setGameInfo] = useState({
-    mode: "",
-    playAs: "",
+    mode: "Human",
+    playAs: "Goat",
     difficulty: "",
     roomNo: "",
+    history:[["a4", "e5d5"], ["a4", "e5d5"], ["a3",] ],
+    // history: [],
+    gameOver:false,
   })
-  const [boardhistory, setBoardHistory] = useState([])    //   ["a4", "e5d5"],
-  const [board, setBoard] = useState({})
+  const [board, setBoard] = useState(defaultBoard)
 
 
   //reseting board
   const resetBoard = () => {
     setBoard(defaultBoard)
-    setBoardHistory([["a4", "e5d5"], ["a4", "e5d5"], ["a3",] ])
   }
 
   //initially setting board
@@ -53,8 +54,8 @@ function App() {
         {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} />}
         {selection == 4 &&
           <>
-            <BoardComponent board={board} setBoard={setBoard} boardhistory={boardhistory} setBoardHistory={setBoardHistory} gameInfo={gameInfo} />
-            <StatusComponent history={boardhistory} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} />
+            <BoardComponent board={board} setBoard={setBoard}  gameInfo={gameInfo} setGameInfo={setGameInfo} />
+            <StatusComponent history={gameInfo.history} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} />
           </>
         }
       </Container>

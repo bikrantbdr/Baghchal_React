@@ -161,7 +161,7 @@ const StatusComponent = ({ history, baghCaptured, bakhraCaptured, bakhraPlaced }
                     {history.map((move, index) => {
                         return (
                             <Move key={index}>
-                                {console.log(move)}
+                                {/* {console.log(move)} */}
                                 <Index>{index + 1}. </Index>
                                 <GoatMove>{move[0] ? move[0] : ""}</GoatMove>
                                 <TigerMove>{move[1] ? move[1] : ""}</TigerMove>
