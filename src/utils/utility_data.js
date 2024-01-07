@@ -16,7 +16,7 @@ const directionsWithDiagonal = [
 ];
 
 const defaultBoard = {
-    board_matrix: [
+    board: [
         [0, null, null, null, 0],
         [null, null, null, null, null],
         [null, null, null, null, null],

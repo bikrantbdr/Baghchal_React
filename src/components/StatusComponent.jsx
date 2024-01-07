@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import restart from '../assets/Restart.png'
 import back from '../assets/Back.png'
@@ -143,7 +143,12 @@ const Value = styled.div`
 
 
 
-const StatusComponent = ({ history, baghCaptured, bakhraCaptured, bakhraPlaced }) => {
+const StatusComponent = ({ gameInfo, board }) => {
+
+    useEffect(() => {
+        // console.log("status changed")
+        // console.log(board)
+    }, [board])
     return (
         <Container>
             <Status>
@@ -158,7 +163,7 @@ const StatusComponent = ({ history, baghCaptured, bakhraCaptured, bakhraPlaced }
                     </BackNextdiv>
                 </Option1>
                 <Moves>
-                    {history.map((move, index) => {
+                    {gameInfo.history.map((move, index) => {
                         return (
                             <Move key={index}>
                                 {/* {console.log(move)} */}
@@ -176,15 +181,15 @@ const StatusComponent = ({ history, baghCaptured, bakhraCaptured, bakhraPlaced }
                 <Peices>
                     <CapValue>
                         <Caption>Bagh Captured</Caption>
-                        <Value>{baghCaptured} / 4 </Value>
+                        <Value>{board.tigers.trapped.length} / 4 </Value>
                     </CapValue>
                     <CapValue>
                         <Caption>Bakhra Captured</Caption>
-                        <Value>{bakhraCaptured} / 5 </Value>
+                        <Value>{board.goats.killed} / 5 </Value>
                     </CapValue>
                     <CapValue>
-                        <Caption>Bakhra Killed</Caption>
-                        <Value>{bakhraPlaced} / 20 </Value>
+                        <Caption>Bakhra Placed</Caption>
+                        <Value>{20 - board.goats.onHand} / 20 </Value>
                     </CapValue>
                 </Peices>
             </Status>
