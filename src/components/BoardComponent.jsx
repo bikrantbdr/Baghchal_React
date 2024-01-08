@@ -404,6 +404,25 @@ const trappedTigers = (board) => {
     return (newTrapped)
 }
 
+const CalculateMove =(oldCoordinates,newCoordinates,killed=false,goatPlaced=false)=>{
+    if(goatPlaced){
+        return `${String.fromCharCode(97 + newCoordinates.row)}${newCoordinates.column + 1}`
+    }
+
+    const oldRow = String.fromCharCode(97 + oldCoordinates.row)
+    const oldCol = oldCoordinates.column + 1
+    const newRow = String.fromCharCode(97 + newCoordinates.row)
+    const newCol = newCoordinates.column + 1
+
+    if(killed){
+        return `${oldRow}${oldCol}x${newRow}${newCol}`
+    }
+    else{
+        return `${oldRow}${oldCol}${newRow}${newCol}`
+    }
+
+}
+
 
 const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
 
@@ -717,7 +736,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
             piece.style.cursor = 'pointer';
             piece.style.zIndex = 3;
             piece.addEventListener('dragstart', (e) => {
-                console.log("drag start for tiger test")
+                // console.log("drag start for tiger test")
                 const oldCoordinates = convertTo2d(parseInt(e.target.classList[1].split('-')[1]))
                 // console.log("oldCoordinates", oldCoordinates)
                 setBoard(prevBoard => {
@@ -816,9 +835,16 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
             piece.style.cursor = 'pointer';
 
             piece.addEventListener('dragstart', (e) => {
-                console.log("drag start for goat test",row,column )
+                // console.log("drag start for goat test",row,column )
             })
             container.appendChild(piece);
+            const historyPiece = CalculateMove(null,{row,column},false,true)
+            setGameInfo(prevGameInfo => {
+                const newGameInfo = { ...prevGameInfo };
+                const historySingleStepArray= [historyPiece]
+                newGameInfo.history.push(historySingleStepArray)
+                return newGameInfo;
+            })
 
 
         }
@@ -833,9 +859,9 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
             row: board.selectedPosition[0]?board.selectedPosition[0]:0,
             column: board.selectedPosition[1]?board.selectedPosition[1]:0
         }
-        console.log("oldCoordinates ", oldCoordinates)
-        console.log("piece selected",board.board[oldCoordinates.row][oldCoordinates.column])
-        console.log("turn", board.playerTurn)
+        // console.log("oldCoordinates ", oldCoordinates)
+        // console.log("piece selected",board.board[oldCoordinates.row][oldCoordinates.column])
+        // console.log("turn", board.playerTurn)
 
         if(board.board[oldCoordinates.row][oldCoordinates.column] ==1 && board.playerTurn != "goat"){
             console.log("tiger turn ma goat drag garna khojeko")
@@ -863,6 +889,15 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
             if (board.playerTurn == 'goat') {
                 // board.board[oldCoordinates.row][oldCoordinates.column] = null
                 // board.board[row][column] = 1
+
+                //add history to gameInfo
+                const historyPiece = CalculateMove(oldCoordinates,{row,column})
+                setGameInfo(prevGameInfo => {
+                    const newGameInfo = { ...prevGameInfo };
+                    const historySingleStepArray= [historyPiece]
+                    newGameInfo.history.push(historySingleStepArray)
+                    return newGameInfo;
+                })
                 setBoard(prevBoard => {
                     const newBoard = { ...prevBoard };
                     newBoard.board[oldCoordinates.row][oldCoordinates.column] = null
@@ -922,7 +957,27 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                     const killedGoatIndex = convertTo1d(killedGoatRow, killedGoatColumn);
                     const killedGoatPiece = document.querySelector(`.piece-${killedGoatIndex}`);
                     killedGoatPiece.remove();
-                    console.log(board.goats.killed)
+                    // console.log(board.goats.killed)
+
+                    //add history to gameInfo
+                    const historyPiece = CalculateMove(oldCoordinates,{row,column},true)
+                    setGameInfo(prevGameInfo => {
+                        const newGameInfo = { ...prevGameInfo };
+                        
+                        newGameInfo.history[gameInfo.history.length-1].push(historyPiece)
+                        return newGameInfo;
+                    }
+                    )
+                }
+                else{
+                    //add history to gameInfo
+                    const historyPiece = CalculateMove(oldCoordinates,{row,column})
+                    setGameInfo(prevGameInfo => {
+                        const newGameInfo = { ...prevGameInfo };
+                        newGameInfo.history[gameInfo.history.length-1].push(historyPiece)
+                        return newGameInfo;
+                    }
+                    )
                 }
 
 
@@ -938,7 +993,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
     },[dropped])
 
     useEffect(() => {
-        console.log("board.selectedPosition", board.selectedPosition)
+        // console.log("board.selectedPosition", board.selectedPosition)
         //find valid moves
         const newValidMoves = validMove(board)
         setBoard(prevBoard => {
@@ -960,7 +1015,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
     }, [board.board])
 
     useEffect(() => {
-        console.log("board", board)
+        // console.log("board", board)
     }, [board])
 
 

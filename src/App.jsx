@@ -30,7 +30,7 @@ function App() {
     playAs: "Goat",
     difficulty: "",
     roomNo: "",
-    history:[["a4"],],
+    history:[],
     // history: [],
     gameOver:false,
   })
@@ -49,8 +49,8 @@ function App() {
 
   useEffect(() => {
     // console.log("board changed")
-    // console.log(board)
-  }, [board])
+    console.log(gameInfo)
+  }, [gameInfo])
 
 
   return (
