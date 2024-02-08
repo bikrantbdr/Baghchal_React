@@ -151,6 +151,13 @@ const BottomRight = styled.div`
 const gameOver = (board) => {
     //1 means Goat win
     //0 Means Tiger win
+    console.log("trapped tigers", board.tigers.trapped.length);
+    console.log("goats on hand", board.goats.onHand);
+    //condn. 3 => all tigers are trapped
+    if (board.tigers.trapped.length == 4) {
+        console.log("all tigers are trapped")
+        return 1;
+    }
 
     // condn. 1 => killed 5 goats
     if (board.goats.killed >= 5) {
@@ -158,7 +165,8 @@ const gameOver = (board) => {
     }
     //condn. 2 => goats have no valid moves  (if game has atleast one goat with a valid place to move than game not over)
     else if (board.goats.onHand === 0) {
-        validMovenumber = 0;
+        let validMovenumber = 0;
+        let directionChoice = []
         for (let row = 0; row < board.board.length && validMovenumber === 0; row++) {
             for (let col = 0; col < board.board[row].length && validMovenumber === 0; col++) {
                 if (board.board[row][col] === null) {
@@ -192,10 +200,10 @@ const gameOver = (board) => {
             return 0
         }
     }
-    //condn. 3 => all tigers are trapped
-    else if (board.tigers.trapped.length === 4) {
-        return 1;
-    }
+
+
+
+
     // the game is not over
     return -1;
 }
@@ -247,36 +255,37 @@ const validMove = (board) => {
     }
     //check valid moves when its turn for goat to move
     else if (board.playerTurn === "goat" &&
-        board.goats.onHand === 0 &&
-        board.board[board.selectedPosition[0]][board.selectedPosition[1]] === 1) {
-        const row = board.selectedPosition[0]
-        const col = board.selectedPosition[1]
+        board.goats.onHand === 0) {
+        if (board.board[board.selectedPosition[0]][board.selectedPosition[1]] === 1) {
+            const row = board.selectedPosition[0]
+            const col = board.selectedPosition[1]
 
-        // console.log("selected position goat", row, col)
+            // console.log("selected position goat", row, col)
 
-        //if the selected position is even
-        if (checkEven(board.selectedPosition)) {
-            //we need to check for diagonal too cause the pieces in even places have that choices
-            directionChoice = directionsWithDiagonal
-        }
-        else {
-            directionChoice = directions
-            // console.log("odd wala direction")
-        }
-        for (const direction of directionChoice) {
-            const newRow = row + direction.row;
-            const newCol = col + direction.col;
+            //if the selected position is even
+            if (checkEven(board.selectedPosition)) {
+                //we need to check for diagonal too cause the pieces in even places have that choices
+                directionChoice = directionsWithDiagonal
+            }
+            else {
+                directionChoice = directions
+                // console.log("odd wala direction")
+            }
+            for (const direction of directionChoice) {
+                const newRow = row + direction.row;
+                const newCol = col + direction.col;
 
-            // console.log(newRow,newCol)
+                // console.log(newRow,newCol)
 
-            // Check if the new position is within the bounds of the board
-            if (newRow >= 0 &&
-                newRow < board.board.length &&
-                newCol >= 0 &&
-                newCol < board.board[row].length) {
-                // Check if the new position is empty
-                if (board.board[newRow][newCol] === null) {
-                    nextValidMoves.push([newRow, newCol])
+                // Check if the new position is within the bounds of the board
+                if (newRow >= 0 &&
+                    newRow < board.board.length &&
+                    newCol >= 0 &&
+                    newCol < board.board[row].length) {
+                    // Check if the new position is empty
+                    if (board.board[newRow][newCol] === null) {
+                        nextValidMoves.push([newRow, newCol])
+                    }
                 }
             }
         }
@@ -404,8 +413,8 @@ const trappedTigers = (board) => {
     return (newTrapped)
 }
 
-const CalculateMove =(oldCoordinates,newCoordinates,killed=false,goatPlaced=false)=>{
-    if(goatPlaced){
+const CalculateMove = (oldCoordinates, newCoordinates, killed = false, goatPlaced = false) => {
+    if (goatPlaced) {
         return `${String.fromCharCode(97 + newCoordinates.row)}${newCoordinates.column + 1}`
     }
 
@@ -414,10 +423,10 @@ const CalculateMove =(oldCoordinates,newCoordinates,killed=false,goatPlaced=fals
     const newRow = String.fromCharCode(97 + newCoordinates.row)
     const newCol = newCoordinates.column + 1
 
-    if(killed){
+    if (killed) {
         return `${oldRow}${oldCol}x${newRow}${newCol}`
     }
-    else{
+    else {
         return `${oldRow}${oldCol}${newRow}${newCol}`
     }
 
@@ -428,7 +437,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
 
     const canvasRef = useRef(null);
     const [clicked, setClicked] = useState(-1)
-    const [dropped, setDropped] = useState([-1,-1])
+    const [dropped, setDropped] = useState([-1, -1])
 
 
 
@@ -745,7 +754,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                     return newBoard;
                 })
 
-                
+
 
             })
 
@@ -779,17 +788,17 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
         tiles.forEach((tile, index) => {
             tile.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                
+
             })
-            
+
             tile.addEventListener('drop', () => {
                 const { row, column } = convertTo2d(index);
-                setDropped([row,column])
+                setDropped([row, column])
             })
         })
     }
 
-        
+
 
 
 
@@ -814,6 +823,9 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                 newBoard.playerTurn = 'tiger';
                 newBoard.board[row][column] = 1;
                 newBoard.goats.onHand = newBoard.goats.onHand - 1;
+                const trappedTigerPosition = trappedTigers(newBoard)
+                newBoard.tigers.trapped = trappedTigerPosition
+                // console.log("newBoard.tigers.trapped from placement", newBoard.tigers.trapped)
                 // console.log("newBoard", newBoard)
                 return newBoard;
             })
@@ -835,13 +847,21 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
             piece.style.cursor = 'pointer';
 
             piece.addEventListener('dragstart', (e) => {
-                // console.log("drag start for goat test",row,column )
+                // console.log("drag start for goat test", row, column)
+                const oldCoordinates = convertTo2d(parseInt(e.target.classList[1].split('-')[1]))
+                setBoard(prevBoard => {
+                    const newBoard = { ...prevBoard };
+                    newBoard.selectedPosition = [oldCoordinates.row, oldCoordinates.column]
+                    return newBoard;
+                })
+
+
             })
             container.appendChild(piece);
-            const historyPiece = CalculateMove(null,{row,column},false,true)
+            const historyPiece = CalculateMove(null, { row, column }, false, true)
             setGameInfo(prevGameInfo => {
                 const newGameInfo = { ...prevGameInfo };
-                const historySingleStepArray= [historyPiece]
+                const historySingleStepArray = [historyPiece]
                 newGameInfo.history.push(historySingleStepArray)
                 return newGameInfo;
             })
@@ -856,24 +876,24 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
         const column = dropped[1]
 
         const oldCoordinates = {
-            row: board.selectedPosition[0]?board.selectedPosition[0]:0,
-            column: board.selectedPosition[1]?board.selectedPosition[1]:0
+            row: board.selectedPosition[0] ? board.selectedPosition[0] : 0,
+            column: board.selectedPosition[1] ? board.selectedPosition[1] : 0
         }
         // console.log("oldCoordinates ", oldCoordinates)
         // console.log("piece selected",board.board[oldCoordinates.row][oldCoordinates.column])
         // console.log("turn", board.playerTurn)
 
-        if(board.board[oldCoordinates.row][oldCoordinates.column] ==1 && board.playerTurn != "goat"){
+        if (board.board[oldCoordinates.row][oldCoordinates.column] == 1 && board.playerTurn != "goat") {
             console.log("tiger turn ma goat drag garna khojeko")
             return;
         }
-        if(board.board[oldCoordinates.row][oldCoordinates.column] ==0 && board.playerTurn != "tiger"){
+        if (board.board[oldCoordinates.row][oldCoordinates.column] == 0 && board.playerTurn != "tiger") {
             console.log("goat turn ma tiger drag garna khojeko")
             return;
         }
 
-        console.log('drop')
-        // console.log(row,column,": drop huni thau")
+        // console.log('drop')
+        // console.log(row, column, ": drop huni thau")
         // console.log("selected position", board.selectedPosition)
         // console.log("next valid moves", board.nextValidMoves)
         // console.log(board.nextValidMoves.includes([row, column]), "testing testing")
@@ -891,10 +911,10 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                 // board.board[row][column] = 1
 
                 //add history to gameInfo
-                const historyPiece = CalculateMove(oldCoordinates,{row,column})
+                const historyPiece = CalculateMove(oldCoordinates, { row, column })
                 setGameInfo(prevGameInfo => {
                     const newGameInfo = { ...prevGameInfo };
-                    const historySingleStepArray= [historyPiece]
+                    const historySingleStepArray = [historyPiece]
                     newGameInfo.history.push(historySingleStepArray)
                     return newGameInfo;
                 })
@@ -911,17 +931,19 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                 setBoard(prevBoard => {
                     const newBoard = { ...prevBoard };
                     newBoard.tigers.trapped = newTrappedTigerPosition
+                    console.log("newBoard.tigers.trapped", newBoard.tigers.trapped)
+                    // if (gameOver(newBoard) === 1) {
+                    //     alert("Goat wins")
+                    // }
                     return newBoard;
                 });
-                if (gameOver(board) === 1) {
-                    alert("Goat wins")
-                }
+
                 // board.playerTurn = 'tiger'
             } else if (board.playerTurn == 'tiger') {
                 // board.board[oldCoordinates.row][oldCoordinates.column] = null
                 // board.board[row][column] = 0
                 // board.tigers.position = newArr
-                
+
                 let newArr = board.tigers.position.filter(coordinate => {
                     return coordinate == [oldCoordinates.row, oldCoordinates.column] ? [row, column] : coordinate
                 })
@@ -933,9 +955,9 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                     newBoard.tigers.position = newArr
                     return newBoard;
                 })
-                if (gameOver(board) === 0) {
-                    alert("Tiger wins")
-                }
+                // if (gameOver(board) === 0) {
+                //     alert("Tiger wins")
+                // }
 
                 //kill ko logic
                 if (Math.abs(oldCoordinates.row - row) > 1 || Math.abs(oldCoordinates.column - column) > 1) {
@@ -950,9 +972,9 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                         return newBoard;
                     })
 
-                    if (gameOver(board) === 0) {
-                        alert("Tiger wins")
-                    }
+                    // if (gameOver(board) === 0) {
+                    //     alert("Tiger wins")
+                    // }
 
                     const killedGoatIndex = convertTo1d(killedGoatRow, killedGoatColumn);
                     const killedGoatPiece = document.querySelector(`.piece-${killedGoatIndex}`);
@@ -960,21 +982,21 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                     // console.log(board.goats.killed)
 
                     //add history to gameInfo
-                    const historyPiece = CalculateMove(oldCoordinates,{row,column},true)
+                    const historyPiece = CalculateMove(oldCoordinates, { row, column }, true)
                     setGameInfo(prevGameInfo => {
                         const newGameInfo = { ...prevGameInfo };
-                        
-                        newGameInfo.history[gameInfo.history.length-1].push(historyPiece)
+
+                        newGameInfo.history[gameInfo.history.length - 1].push(historyPiece)
                         return newGameInfo;
                     }
                     )
                 }
-                else{
+                else {
                     //add history to gameInfo
-                    const historyPiece = CalculateMove(oldCoordinates,{row,column})
+                    const historyPiece = CalculateMove(oldCoordinates, { row, column })
                     setGameInfo(prevGameInfo => {
                         const newGameInfo = { ...prevGameInfo };
-                        newGameInfo.history[gameInfo.history.length-1].push(historyPiece)
+                        newGameInfo.history[gameInfo.history.length - 1].push(historyPiece)
                         return newGameInfo;
                     }
                     )
@@ -990,7 +1012,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
             }
             // console.log(board.board)
         }
-    },[dropped])
+    }, [dropped])
 
     useEffect(() => {
         // console.log("board.selectedPosition", board.selectedPosition)
@@ -1015,8 +1037,16 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
     }, [board.board])
 
     useEffect(() => {
-        // console.log("board", board)
-    }, [board])
+        console.log("Turn changed")
+        const gameStatus = gameOver(board)
+        console.log("gameStatus", gameStatus)
+        if (gameStatus === 0) {
+            alert("Tiger wins")
+        }
+        else if (gameStatus === 1) {
+            alert("Goat wins")
+        }
+    }, [board.playerTurn])
 
 
     return (

@@ -59,6 +59,7 @@ const Moves = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
     `
 const Move = styled.div`
     height:2.5rem;

@@ -30,9 +30,9 @@ function App() {
     playAs: "Goat",
     difficulty: "",
     roomNo: "",
-    history:[],
+    history: [],
     // history: [],
-    gameOver:false,
+    gameOver: false,
   })
   const [board, setBoard] = useState(defaultBoard)
 
@@ -49,7 +49,7 @@ function App() {
 
   useEffect(() => {
     // console.log("board changed")
-    console.log(gameInfo)
+    // console.log(gameInfo)
   }, [gameInfo])
 
 
@@ -59,9 +59,9 @@ function App() {
         {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} />}
         {selection == 4 &&
           <>
-            <BoardComponent board={board} setBoard={setBoard}  gameInfo={gameInfo} setGameInfo={setGameInfo} />
+            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} />
             {/* <StatusComponent history={gameInfo.history} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} /> */}
-            <StatusComponent gameInfo={gameInfo} board={board}  />
+            <StatusComponent gameInfo={gameInfo} board={board} />
 
           </>
         }
