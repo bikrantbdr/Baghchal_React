@@ -26,13 +26,13 @@ const trianlgedimension = {
 }
 
 const pieceGoatDimension = {
-    width: 50,
-    height: 50
+    width: 75,
+    height: 75
 }
 
 const pieceTigerDimension = {
-    width: 50,
-    height: 50
+    width: 75,
+    height: 75
 }
 
 const Container = styled.div`
@@ -151,11 +151,11 @@ const BottomRight = styled.div`
 const gameOver = (board) => {
     //1 means Goat win
     //0 Means Tiger win
-    console.log("trapped tigers", board.tigers.trapped.length);
-    console.log("goats on hand", board.goats.onHand);
+    // console.log("trapped tigers", board.tigers.trapped.length);
+    // console.log("goats on hand", board.goats.onHand);
     //condn. 3 => all tigers are trapped
     if (board.tigers.trapped.length == 4) {
-        console.log("all tigers are trapped")
+        // console.log("all tigers are trapped")
         return 1;
     }
 
@@ -196,7 +196,7 @@ const gameOver = (board) => {
             }
         }
         if (validMovenumber === 0) {
-            console.log("validMovenumber", validMovenumber)
+            // console.log("validMovenumber", validMovenumber)
             return 0
         }
     }
@@ -931,7 +931,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
                 setBoard(prevBoard => {
                     const newBoard = { ...prevBoard };
                     newBoard.tigers.trapped = newTrappedTigerPosition
-                    console.log("newBoard.tigers.trapped", newBoard.tigers.trapped)
+                    // console.log("newBoard.tigers.trapped", newBoard.tigers.trapped)
                     // if (gameOver(newBoard) === 1) {
                     //     alert("Goat wins")
                     // }
@@ -1037,9 +1037,9 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo }) => {
     }, [board.board])
 
     useEffect(() => {
-        console.log("Turn changed")
+        // console.log("Turn changed")
         const gameStatus = gameOver(board)
-        console.log("gameStatus", gameStatus)
+        // console.log("gameStatus", gameStatus)
         if (gameStatus === 0) {
             alert("Tiger wins")
         }

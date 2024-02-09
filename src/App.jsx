@@ -24,10 +24,10 @@ const Container = styled.div`
   `
 
 function App() {
-  const [selection, setSelection] = useState(4)
+  const [selection, setSelection] = useState(0)
   const [gameInfo, setGameInfo] = useState({
-    mode: "Human",
-    playAs: "Goat",
+    mode: "",
+    playAs: "",
     difficulty: "",
     roomNo: "",
     history: [],

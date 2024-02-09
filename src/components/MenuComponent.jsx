@@ -1,11 +1,16 @@
 import styled from 'styled-components'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Ai from '../assets/Ai_icon.png'
 import Human from '../assets/human_icon.png'
 import Online from '../assets/online_icon.png'
 import Goat from '../assets/goat_icon.png'
 import Tiger from '../assets/tiger_icon.png'
 import Close from '../assets/close_icon.png'
+
+
+import io from 'socket.io-client'
+
+
 
 
 const Container = styled.div`
@@ -127,7 +132,7 @@ const menuItem = [
             {
                 value: "Online",
                 img: Online,
-                selection: 3
+                selection: 1
             }
         ]
     },
@@ -178,10 +183,37 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
     const [backSelection, setBackSelection] = useState([])
     const [roomInput, setRoomInput] = useState("")
     const [error, setError] = useState("")
+    const [joiningRoom, setJoiningRoom] = useState(false);
+    const socket = io('http://localhost:3000')
 
     // useEffect(() => {
     //     console.log(selection)
     // }, [selection])
+
+    const createRoomHandler = () => {
+        //create room randomly of 4digit
+        setJoiningRoom(true);
+
+        const room = Math.floor(1000 + Math.random() * 9000)
+        socket.emit('createRoom', room)
+
+    }
+    const joinRoomHandler = () => {
+        setBackSelection(oldarray => [...oldarray, selection])
+
+    }
+
+
+    useEffect(() => {
+        socket.on('created', (data) => {
+            console.log("room created", data)
+            setJoiningRoom(false);
+            setGameInfo({ ...gameInfo, roomNo: data.roomName })
+            setSelection(5);
+        })
+    }, [socket]
+    )
+
 
     return (
         <Container>
@@ -228,7 +260,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                             <Option key={index} onClick={() => {
                                                 setGameInfo({ ...gameInfo, playAs: item.value })
                                                 setBackSelection(oldarray => [...oldarray, selection])
-                                                setSelection(gameInfo.mode === "AI" ? 2 : 4)
+                                                setSelection(gameInfo.mode === "AI" ? 2 : 3)
 
                                             }}>
                                                 <div>{item.value}</div>
@@ -264,20 +296,28 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                 <>
                                     <MenuTitle>{menuItem[selection].title}</MenuTitle>
                                     <MenuOptions>
-                                        <Option onClick={() => {
-                                            setGameInfo({ ...gameInfo, roomNo: "123456" })
-                                            setBackSelection(oldarray => [...oldarray, selection])
-                                            setSelection(4)
-                                        }
-                                        }>
+                                        <Option
+                                            // onClick={() => {
+                                            //     setGameInfo({ ...gameInfo, roomNo: "123456" })
+                                            //     setBackSelection(oldarray => [...oldarray, selection])
+                                            //     setSelection(4)
+                                            // }
+                                            // }
+                                            onClick={createRoomHandler}
+                                        >
                                             Create Room
+                                            {/* //loader on creating room dynamic 3 dots*/}
+                                            {joiningRoom && <div>...</div>}
                                         </Option>
 
 
-                                        <Option onClick={() => {
-                                            setBackSelection(oldarray => [...oldarray, selection])
-                                            setSelection(6)
-                                        }}>
+                                        <Option
+                                            // onClick={() => {
+                                            //     setBackSelection(oldarray => [...oldarray, selection])
+                                            //     setSelection(6)
+                                            // }}
+                                            onClick={joinRoomHandler}
+                                        >
                                             Enter Room
                                         </Option>
                                     </MenuOptions>
@@ -290,13 +330,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
 
                                         <MenuOptions>
                                             <RoomCode>
-                                                {gameInfo.roomNo}
-                                                {
-                                                    setTimeout(() => {
-                                                        setBackSelection(oldarray => [...oldarray, selection])
-                                                        setSelection(4)
-                                                    }, 4000)
-                                                }
+                                                {gameInfo.roomNo ? gameInfo.roomNo : ""}
                                             </RoomCode>
                                             <Option onClick={() => {
                                                 setBackSelection(oldarray => [...oldarray, selection])
