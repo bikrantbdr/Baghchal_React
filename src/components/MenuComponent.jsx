@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Ai from '../assets/Ai_icon.png'
 import Human from '../assets/human_icon.png'
 import Online from '../assets/online_icon.png'
@@ -132,7 +132,7 @@ const menuItem = [
             {
                 value: "Online",
                 img: Online,
-                selection: 1
+                selection: 3
             }
         ]
     },
@@ -140,11 +140,11 @@ const menuItem = [
         title: "Play As",
         options: [
             {
-                value: "Goat",
+                value: "goat",
                 img: Goat,
             },
             {
-                value: "Tiger",
+                value: "tiger",
                 img: Tiger,
             },
         ]
@@ -179,39 +179,101 @@ const menuItem = [
 
 
 
-const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
+const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket }) => {
     const [backSelection, setBackSelection] = useState([])
     const [roomInput, setRoomInput] = useState("")
     const [error, setError] = useState("")
     const [joiningRoom, setJoiningRoom] = useState(false);
-    const socket = io('http://localhost:3000')
 
-    // useEffect(() => {
-    //     console.log(selection)
-    // }, [selection])
+    const gameInfoRef = useRef(gameInfo)
 
-    const createRoomHandler = () => {
+
+    const createRoomHandler = (value) => {
         //create room randomly of 4digit
         setJoiningRoom(true);
 
         const room = Math.floor(1000 + Math.random() * 9000)
-        socket.emit('createRoom', room)
+        const newGameInfo = { ...gameInfo, roomNo: room, creator: 1, playAs: value }
+
+        setGameInfo(newGameInfo)
+        gameInfoRef.current = newGameInfo
+
+        socket.emit('createRoom', newGameInfo)
 
     }
     const joinRoomHandler = () => {
-        setBackSelection(oldarray => [...oldarray, selection])
+        // setBackSelection(oldarray => [...oldarray, selection])
+        socket.emit('joinRoom', roomInput)
 
     }
 
 
+
     useEffect(() => {
+        //confirming room creation
         socket.on('created', (data) => {
             console.log("room created", data)
-            setJoiningRoom(false);
-            setGameInfo({ ...gameInfo, roomNo: data.roomName })
-            setSelection(5);
+            if (data.status === 0) {
+                setJoiningRoom(false);
+                console.log("room created ko bela ko gameinfo", gameInfo)
+                console.log("room created ko bela ko gameinfoRef", gameInfoRef.current)
+                setSelection(5);
+            }
         })
-    }, [socket]
+
+        //confirming room joining
+        socket.on('joined', (data) => {
+            if (data.status === 0) {
+                console.log("room joined", data)
+                setJoiningRoom(false);
+                setGameInfo({ ...gameInfo, roomNo: data.roomName, creator: 0 })
+                gameInfoRef.current = { ...gameInfo, roomNo: data.roomName, creator: 0 }
+                // setSelection(4);
+                socket.emit('anotherPlayerJoined',
+                    {
+                        roomName: data.roomName,
+                        status: 1,
+                    })
+            }
+            else {
+                setError(data.message)
+            }
+
+        }
+        )
+
+
+        //confirming another player joined now send initial board data
+        socket.on('anotherPlayerJoinedConfirmation', (data) => {
+            console.log("another player joined", data)
+            if (data.status === 1 && gameInfoRef.current.creator === 1) {
+                //call send initial board data
+                console.log("sending initial board data", gameInfoRef.current)
+
+                socket.emit('sendInitialBoardData', {
+                    roomName: data.roomName,
+                    playAs: gameInfoRef.current.playAs === "goat" ? "tiger" : "goat",
+                })
+                setJoiningRoom(false);
+                setSelection(4);
+            }
+        }
+        )
+
+        //initialBoard 
+        socket.on('initialBoard', (data) => {
+            console.log("initial board data", data)
+            setGameInfo({ ...gameInfo, playAs: data.playAs })
+            gameInfoRef.current = { ...gameInfo, playAs: data.playAs }
+            setSelection(4);
+        })
+
+
+
+
+
+
+    }, [socket, gameInfoRef]
     )
 
 
@@ -258,10 +320,12 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                     menuItem[selection].options.map((item, index) => {
                                         return (
                                             <Option key={index} onClick={() => {
-                                                setGameInfo({ ...gameInfo, playAs: item.value })
+                                                // setGameInfo({ ...gameInfo, playAs: item.value })
+                                                if (gameInfo.mode === "Online") {
+                                                    createRoomHandler(item.value)
+                                                }
                                                 setBackSelection(oldarray => [...oldarray, selection])
-                                                setSelection(gameInfo.mode === "AI" ? 2 : 3)
-
+                                                setSelection(gameInfo.mode === "AI" ? 2 : 1)
                                             }}>
                                                 <div>{item.value}</div>
                                                 <img src={item.img} alt="" />
@@ -297,13 +361,13 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                     <MenuTitle>{menuItem[selection].title}</MenuTitle>
                                     <MenuOptions>
                                         <Option
-                                            // onClick={() => {
-                                            //     setGameInfo({ ...gameInfo, roomNo: "123456" })
-                                            //     setBackSelection(oldarray => [...oldarray, selection])
-                                            //     setSelection(4)
-                                            // }
-                                            // }
-                                            onClick={createRoomHandler}
+                                            onClick={() => {
+                                                setGameInfo({ ...gameInfo, creator: 1 })
+
+                                                setSelection(1)
+                                            }
+                                            }
+
                                         >
                                             Create Room
                                             {/* //loader on creating room dynamic 3 dots*/}
@@ -312,11 +376,12 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
 
 
                                         <Option
-                                            // onClick={() => {
-                                            //     setBackSelection(oldarray => [...oldarray, selection])
-                                            //     setSelection(6)
-                                            // }}
-                                            onClick={joinRoomHandler}
+                                            onClick={() => {
+                                                setGameInfo({ ...gameInfo, creator: 0 })
+                                                setBackSelection(oldarray => [...oldarray, selection])
+                                                setSelection(6)
+                                            }}
+
                                         >
                                             Enter Room
                                         </Option>
@@ -350,25 +415,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo }) => {
                                                     setRoomInput(e.target.value)
                                                 }} />
                                             <MenuOptions>
-                                                <Option onClick={() => {
-                                                    if (roomInput.length > 0) {
-                                                        setError("Joining Room...")
-                                                        //connect to server room
-                                                        if (roomInput === "123456") {
-                                                            setBackSelection(oldarray => [...oldarray, selection])
-                                                            setGameInfo({ ...gameInfo, roomNo: roomInput, playAs: "Goat" })
-                                                            setSelection(4)
-                                                        }
-                                                        else {
-                                                            setError("Room not found")
-                                                        }
-
-                                                    }
-                                                    else {
-                                                        setError("Please enter Room Code to join")
-                                                    }
-
-                                                }}>
+                                                <Option onClick={joinRoomHandler} >
                                                     <div>Join</div>
                                                 </Option>
                                                 <div style={{ color: "#a92525", padding: "40px 0 0 0" }}>{error}</div>

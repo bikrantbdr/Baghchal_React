@@ -5,6 +5,7 @@ import { defaultBoard } from "./utils/utility_data"
 import BoardComponent from "./components/BoardComponent"
 import StatusComponent from "./components/StatusComponent"
 import MenuComponent from "./components/MenuComponent"
+import io from 'socket.io-client'
 
 
 const Body = styled.div`
@@ -24,12 +25,14 @@ const Container = styled.div`
   `
 
 function App() {
+  const socket = io('http://localhost:3000')
   const [selection, setSelection] = useState(0)
   const [gameInfo, setGameInfo] = useState({
     mode: "",
     playAs: "",
     difficulty: "",
     roomNo: "",
+    creator: 0,
     history: [],
     // history: [],
     gameOver: false,
@@ -56,10 +59,10 @@ function App() {
   return (
     <Body>
       <Container>
-        {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} />}
+        {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} />}
         {selection == 4 &&
           <>
-            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} />
+            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} />
             {/* <StatusComponent history={gameInfo.history} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} /> */}
             <StatusComponent gameInfo={gameInfo} board={board} />
 
