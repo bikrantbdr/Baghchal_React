@@ -26,6 +26,7 @@ const Container = styled.div`
 
 function App() {
   const socket = io('http://localhost:3000')
+  const BackendURL = "http://127.0.0.1:8000/api/v1/get_best_move"
   const [selection, setSelection] = useState(0)
   const [gameInfo, setGameInfo] = useState({
     mode: "",
@@ -62,7 +63,7 @@ function App() {
         {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} />}
         {selection == 4 &&
           <>
-            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} setSelection={setSelection} />
+            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} setSelection={setSelection} BackendURL={BackendURL} />
             {/* <StatusComponent history={gameInfo.history} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} /> */}
             <StatusComponent gameInfo={gameInfo} board={board} />
 

@@ -5,6 +5,7 @@ import triangle from '../assets/triangle.svg'
 import square from '../assets/square.svg'
 import tiger from '../assets/tiger.png'
 import goat from '../assets/goat.png'
+import axios from 'axios';
 
 
 const canvasdimension = {
@@ -498,7 +499,7 @@ const arrayEqual = (arr1, arr2) => {
     return true;
 }
 
-const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSelection }) => {
+const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSelection, BackendURL }) => {
 
     const canvasRef = useRef(null);
     const [clicked, setClicked] = useState(-1)
@@ -508,10 +509,87 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
     const prevSentMoveRef = useRef(prevSentMove)
     const prevReceivedMoveRef = useRef(prevReceivedMove)
 
+    const findOldAndNewPosition = (data) => {
+        const boardFromServer = data.position
+
+        //check if goat was placed
+        if (board.goats.onHand !== data.goats_onhand) {
+            console.log("goat placed by AI")
+            //check and return the position difference
+            for (let row = 0; row < boardFromServer.length; row++) {
+                for (let column = 0; column < boardFromServer[row].length; column++) {
+                    if (boardFromServer[row][column] !== board.board[row][column]) {
+                        return {
+                            goatPlaced: true,
+                            newCoordinates: {
+                                row: row,
+                                column: column
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //check if goat was killed
+        else if (board.goats.killed !== data.goats_killed) {
+            console.log("goat killed by AI")
+            const data = {
+                oldCoordinates: { row: -1, column: -1 },
+                newCoordinates: { row: -1, column: -1 },
+                killed: true
+            }
+            //check and return the position difference
+            for (let row = 0; row < boardFromServer.length; row++) {
+                for (let column = 0; column < boardFromServer[row].length; column++) {
+                    if (boardFromServer[row][column] !== board.board[row][column]) {
+                        if (boardFromServer[row][column] === null) {
+                            data.oldCoordinates.row = row
+                            data.oldCoordinates.column = column
+                        }
+                        else {
+                            data.newCoordinates.row = row
+                            data.newCoordinates.column = column
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+        //check if tiger moved
+        else {
+            console.log("tiger moved by AI")
+            const data = {
+                oldCoordinates: { row: -1, column: -1 },
+                newCoordinates: { row: -1, column: -1 },
+                killed: false
+            }
+            //check and return the position difference
+            for (let row = 0; row < boardFromServer.length; row++) {
+                for (let column = 0; column < boardFromServer[row].length; column++) {
+                    if (boardFromServer[row][column] !== board.board[row][column]) {
+                        if (boardFromServer[row][column] === null) {
+                            data.oldCoordinates.row = row
+                            data.oldCoordinates.column = column
+                        }
+                        else {
+                            data.newCoordinates.row = row
+                            data.newCoordinates.column = column
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+
+
+    }
+
 
     useEffect(() => {
         //in online and AI mode disable click event on board if its not your turn
         const container = document.querySelector('.container');
+        // console.log("turn", board.playerTurn)
+        // console.log("gameinfo", gameInfo)
         if ((gameInfo.mode === "Online" || gameInfo.mode === "AI") && board.playerTurn !== gameInfo.playAs) {
             container.style.pointerEvents = "none"
         }
@@ -532,10 +610,10 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
 
         //send the move to the server
         if (gameInfo.mode === "Online" && board.playerTurn !== gameInfo.playAs && (move !== prevSentMoveRef.current || gameInfo.playAs === "goat") && board.playerTurn !== gameInfo.playAs) {
-            console.log("whose turn", board.playerTurn)
-            console.log("playing as", gameInfo.playAs)
-            console.log("send the move to the server", move)
-            console.log("prevsentmove and move", prevSentMoveRef.current, move)
+            // console.log("whose turn", board.playerTurn)
+            // console.log("playing as", gameInfo.playAs)
+            // console.log("send the move to the server", move)
+            // console.log("prevsentmove and move", prevSentMoveRef.current, move)
             socket.emit('sendMove', {
                 roomName: gameInfo.roomNo,
                 move: move,
@@ -550,6 +628,120 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
 
         }
         //cleanup 
+
+        //for AI mode
+        if (gameInfo.mode == "AI" && board.playerTurn !== gameInfo.playAs) {
+            // send the following data to the backend
+            // {
+            //         "position": [[0, 1, null, null, 0],
+            //                 [null, null, null, 1, null],
+            //                 [null, null, null, null, null],
+            //                 [null, null, null, null, null],
+            //                 [0, null, null, null, 0]],
+            //         "tigers_trapped": [],
+            //         "goats_onhand": 18,
+            //         "goats_killed": 0,
+            //         "player_turn": 0,
+            //         "game_mode": "medium"
+            // }
+
+
+            const data = {
+                position: board.board,
+                tigers_trapped: board.tigers.trapped,
+                goats_onhand: board.goats.onHand,
+                goats_killed: board.goats.killed,
+                player_turn: board.playerTurn === "tiger" ? 0 : 1,
+                game_mode: gameInfo.difficulty
+            }
+            console.log("data to send to backend", data)
+            axios.post(BackendURL, data)
+                .then(res => {
+                    console.log("res from backend", res)
+                    const move = findOldAndNewPosition(res.data)
+                    console.log("move from backend changed into coordinates", move)
+
+                    if (move.goatPlaced) {
+                        // console.log("goat placed")
+                        setBoard(prev => {
+                            const newBoard = { ...prev };
+                            newBoard.goats.onHand--;
+                            newBoard.playerTurn = "tiger";
+                            newBoard.board = res.data.position;
+                            newBoard.goats.onHand = res.data.goats_onhand
+                            return newBoard;
+                        })
+                        //change game info history
+                        const historyPiece = CalculateMove(null, move.newCoordinates, false, true)
+                        setGameInfo(prevGameInfo => {
+                            const newGameInfo = { ...prevGameInfo };
+                            const historySingleStepArray = [historyPiece]
+                            newGameInfo.history.push(historySingleStepArray)
+                            return newGameInfo;
+                        })
+                        placeOpponentGoat(move.newCoordinates.row, move.newCoordinates.column)
+                    }
+                    //if goat is moved
+                    else if (board.playerTurn === "goat") {
+                        setBoard(prev => {
+                            const newBoard = { ...prev };
+                            newBoard.playerTurn = "tiger";
+                            newBoard.board = res.data.position;
+                            newBoard.goats.onHand = res.data.goats_onhand
+                            return newBoard;
+                        })
+                        //change game info history
+                        const historyPiece = CalculateMove(move.oldCoordinates, move.newCoordinates, move.killed, false)
+                        setGameInfo(prevGameInfo => {
+                            const newGameInfo = { ...prevGameInfo };
+                            newGameInfo.history[newGameInfo.history.length - 1].push(historyPiece)
+                            return newGameInfo;
+                        })
+
+                    }
+                    else if (move.killed) {
+                        setBoard(prev => {
+                            const newBoard = { ...prev };
+                            newBoard.playerTurn = "goat";
+                            newBoard.goats.killed++;
+                            newBoard.board = res.data.position;
+                            newBoard.goats.onHand = res.data.goats_onhand
+                            return newBoard;
+                        })
+                        //change game info history
+                        const historyPiece = CalculateMove(move.oldCoordinates, move.newCoordinates, move.killed, false)
+                        setGameInfo(prevGameInfo => {
+                            const newGameInfo = { ...prevGameInfo };
+                            newGameInfo.history[newGameInfo.history.length - 1].push(historyPiece)
+                            return newGameInfo;
+                        })
+                        killGoat(move.oldCoordinates.row, move.oldCoordinates.column, move.newCoordinates.row, move.newCoordinates.column)
+                        moveOpponentPiece(move.oldCoordinates.row, move.oldCoordinates.column, move.newCoordinates.row, move.newCoordinates.column)
+                    }
+                    else if (!move.killed) {
+                        setBoard(prev => {
+                            const newBoard = { ...prev };
+                            newBoard.playerTurn = "goat";
+                            newBoard.board = res.data.position;
+                            newBoard.goats.onHand = res.data.goats_onhand
+                            return newBoard;
+                        })
+                        //change game info history
+                        const historyPiece = CalculateMove(move.oldCoordinates, move.newCoordinates, move.killed, false)
+                        setGameInfo(prevGameInfo => {
+                            const newGameInfo = { ...prevGameInfo };
+                            newGameInfo.history[newGameInfo.history.length - 1].push(historyPiece)
+                            return newGameInfo;
+                        })
+                        moveOpponentPiece(move.oldCoordinates.row, move.oldCoordinates.column, move.newCoordinates.row, move.newCoordinates.column)
+                    }
+                })
+                .catch(err => {
+                    console.log("err from backend", err)
+                })
+
+
+        }
         return () => {
             socket.off('sendMove')
         }

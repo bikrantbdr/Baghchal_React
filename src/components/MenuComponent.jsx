@@ -153,13 +153,13 @@ const menuItem = [
         title: "Difficulty",
         options: [
             {
-                value: "Easy",
+                value: "easy",
             },
             {
-                value: "Medium",
+                value: "medium",
             },
             {
-                value: "Hard",
+                value: "hard",
             }
         ]
     },
@@ -326,6 +326,8 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
                                                 if (gameInfo.mode === "Online") {
                                                     createRoomHandler(item.value)
                                                 }
+                                                if (gameInfo.mode === "AI")
+                                                    setGameInfo({ ...gameInfo, playAs: item.value })
                                                 setBackSelection(oldarray => [...oldarray, selection])
                                                 setSelection(gameInfo.mode === "AI" ? 2 : 1)
                                             }}>
