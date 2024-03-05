@@ -279,16 +279,18 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
 
     return (
         <Container>
-            <BackButton onClick={() => {
-                if (backSelection.length == 0) {
-                    setSelection(0)
-                    return
-                }
-                setSelection(backSelection[backSelection.length - 1])
-                setBackSelection(backSelection.slice(0, backSelection.length - 1))
-            }}>
-                <img src={Close} alt="close" />
-            </BackButton>
+            {selection !== 10 && selection !== 11 &&
+                <BackButton onClick={() => {
+                    if (backSelection.length == 0) {
+                        setSelection(0)
+                        return
+                    }
+                    setSelection(backSelection[backSelection.length - 1])
+                    setBackSelection(backSelection.slice(0, backSelection.length - 1))
+                }}>
+                    <img src={Close} alt="close" />
+                </BackButton>
+            }
             {
                 //Play Against
                 selection == 0 ?
@@ -421,7 +423,34 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
                                                 <div style={{ color: "#a92525", padding: "40px 0 0 0" }}>{error}</div>
                                             </MenuOptions>
                                         </>
-                                        : <></>
+                                        : selection == 10 ?
+                                            <>
+                                                <MenuTitle>
+                                                    Tiger Won the game
+                                                </MenuTitle>
+                                                <MenuOptions>
+                                                    <Option onClick={() => {
+                                                        setSelection(0)
+                                                    }}>
+                                                        <div>Back to Menu</div>
+                                                    </Option>
+                                                </MenuOptions>
+
+                                            </>
+                                            : selection == 11 ?
+                                                <>
+                                                    <MenuTitle>
+                                                        Goat Won the game
+                                                    </MenuTitle>
+                                                    <MenuOptions>
+                                                        <Option onClick={() => {
+                                                            setSelection(0)
+                                                        }}>
+                                                            <div>Back to Menu</div>
+                                                        </Option>
+                                                    </MenuOptions>
+                                                </> :
+                                                <></>
             }
         </Container>
     )

@@ -62,7 +62,7 @@ function App() {
         {selection != 4 && <MenuComponent setSelection={setSelection} selection={selection} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} />}
         {selection == 4 &&
           <>
-            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} />
+            <BoardComponent board={board} setBoard={setBoard} gameInfo={gameInfo} setGameInfo={setGameInfo} socket={socket} setSelection={setSelection} />
             {/* <StatusComponent history={gameInfo.history} baghCaptured={board.tigers.trapped.length} bakhraCaptured={board.goats.killed} bakhraPlaced={20 - board.goats.onHand} /> */}
             <StatusComponent gameInfo={gameInfo} board={board} />
 
