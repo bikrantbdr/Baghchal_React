@@ -179,7 +179,7 @@ const menuItem = [
 
 
 
-const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket }) => {
+const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket, resetBoard }) => {
     const [backSelection, setBackSelection] = useState([])
     const [roomInput, setRoomInput] = useState("")
     const [error, setError] = useState("")
@@ -212,11 +212,11 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
     useEffect(() => {
         //confirming room creation
         socket.on('created', (data) => {
-            console.log("room created", data)
+            // console.log("room created", data)
             if (data.status === 0) {
                 setJoiningRoom(false);
-                console.log("room created ko bela ko gameinfo", gameInfo)
-                console.log("room created ko bela ko gameinfoRef", gameInfoRef.current)
+                // console.log("room created ko bela ko gameinfo", gameInfo)
+                // console.log("room created ko bela ko gameinfoRef", gameInfoRef.current)
                 setSelection(5);
             }
         })
@@ -224,7 +224,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
         //confirming room joining
         socket.on('joined', (data) => {
             if (data.status === 0) {
-                console.log("room joined", data)
+                // console.log("room joined", data)
                 setJoiningRoom(false);
                 setGameInfo({ ...gameInfo, roomNo: data.roomName, creator: 0 })
                 gameInfoRef.current = { ...gameInfo, roomNo: data.roomName, creator: 0 }
@@ -245,10 +245,10 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
 
         //confirming another player joined now send initial board data
         socket.on('anotherPlayerJoinedConfirmation', (data) => {
-            console.log("another player joined", data)
+            // console.log("another player joined", data)
             if (data.status === 1 && gameInfoRef.current.creator === 1) {
                 //call send initial board data
-                console.log("sending initial board data", gameInfoRef.current)
+                // console.log("sending initial board data", gameInfoRef.current)
 
                 socket.emit('sendInitialBoardData', {
                     roomName: data.roomName,
@@ -262,7 +262,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
 
         //initialBoard 
         socket.on('initialBoard', (data) => {
-            console.log("initial board data", data)
+            // console.log("initial board data", data)
             setGameInfo({ ...gameInfo, playAs: data.playAs })
             gameInfoRef.current = { ...gameInfo, playAs: data.playAs }
             setSelection(4);
@@ -432,6 +432,7 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
                                                 </MenuTitle>
                                                 <MenuOptions>
                                                     <Option onClick={() => {
+                                                        resetBoard()
                                                         setSelection(0)
                                                     }}>
                                                         <div>Back to Menu</div>
@@ -446,7 +447,9 @@ const MenuComponent = ({ selection, setSelection, gameInfo, setGameInfo, socket 
                                                     </MenuTitle>
                                                     <MenuOptions>
                                                         <Option onClick={() => {
+                                                            resetBoard()
                                                             setSelection(0)
+
                                                         }}>
                                                             <div>Back to Menu</div>
                                                         </Option>

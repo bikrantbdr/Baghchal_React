@@ -37,16 +37,16 @@ const Option1 = styled.div`
 const Restartdiv = styled.div`
     height: 40px;
     width: 40px;
-    display: flex;
+    display: ${props => props.mode === "Online" ? "none" : "flex"};
     align-items: center;
     justify-content: center;
     cursor: pointer;
     `
 const BackNextdiv = styled.div`
     height: 40px;
-    width:100px;
+    width:auto;
     display: flex;
-    justify-content:space-evenly;
+    /* justify-content:space-evenly; */
     align-items: center;
 
     & img{
@@ -106,9 +106,9 @@ const Option2 = styled.div`
     align-items: center;
     gap: 30px;
 
-    & img{
+    /* & img{
         cursor: pointer;
-    }
+    } */
 
     `
 const Peices = styled.div`
@@ -142,9 +142,19 @@ const Value = styled.div`
     color: #fff;
     `
 
+const SwapImage = styled.img`
+    display: ${props => props.mode === "AI" ? "flex" : "none"};
+    opacity: ${props => props.history.length > 10 ? 1 : 0.5};
+    cursor: ${props => props.history.length > 10 ? "pointer" : "not-allowed"};
+`
+const Surrender = styled.img`
+    display: ${props => props.mode === "Online" ? "flex" : "none"};
+    cursor: pointer;
+`
 
 
-const StatusComponent = ({ gameInfo, board }) => {
+
+const StatusComponent = ({ gameInfo, board, resetBoard, setSelection, SwapPlayer, SurrenderFunction }) => {
 
     useEffect(() => {
         // console.log("status changed")
@@ -154,12 +164,17 @@ const StatusComponent = ({ gameInfo, board }) => {
         <Container>
             <Status>
                 <Option1>
-                    <Restartdiv>
+                    <Restartdiv mode={gameInfo.mode} onClick={() => {
+                        resetBoard()
+                        setSelection(0)
+                    }}
+
+                    >
                         <img src={restart} alt="restart" />
                     </Restartdiv>
                     <BackNextdiv>
                         <img src={back} alt="back" height="18px" width="18px" />
-                        <img src={next} alt="next" height="18px" width="18px" />
+                        {/* <img src={next} alt="next" height="18px" width="18px" /> */}
 
                     </BackNextdiv>
                 </Option1>
@@ -176,8 +191,12 @@ const StatusComponent = ({ gameInfo, board }) => {
                     })}
                 </Moves>
                 <Option2>
-                    <img src={swap} alt="swap" height="30px" width="30px" />
-                    <img src={surrender} alt="surrender" height="25px" width="17px" />
+                    <SwapImage mode={gameInfo.mode} history={gameInfo.history} onClick={() => {
+                        SwapPlayer()
+                    }} src={swap} alt="swap" height="30px" width="30px" />
+                    <Surrender mode={gameInfo.mode} onClick={() => {
+                        SurrenderFunction()
+                    }} src={surrender} alt="surrender" height="25px" width="17px" />
                 </Option2>
                 <Peices>
                     <CapValue>

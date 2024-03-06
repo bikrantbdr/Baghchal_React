@@ -1,11 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
+import axios from 'axios';
+import useSound from 'use-sound';
+
 import { directions, directionsWithDiagonal } from '../utils/utility_data'
 import triangle from '../assets/triangle.svg'
 import square from '../assets/square.svg'
 import tiger from '../assets/tiger.png'
 import goat from '../assets/goat.png'
-import axios from 'axios';
+
+import moveSound from '../assets/move.mp3'
+import killSound from '../assets/capture.mp3'
+import winSound from '../assets/win.mp3'
 
 
 const canvasdimension = {
@@ -509,6 +515,12 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
     const prevSentMoveRef = useRef(prevSentMove)
     const prevReceivedMoveRef = useRef(prevReceivedMove)
 
+    const [prevKillCount, setPrevKillCount] = useState(0)
+
+    const [playMove] = useSound(moveSound, { volume: 1 });
+    const [playKill] = useSound(killSound, { volume: 1 });
+    const [playWin] = useSound(winSound, { volume: 1 });
+
     const findOldAndNewPosition = (data) => {
         const boardFromServer = data.position
 
@@ -585,8 +597,8 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
     }
 
 
+    //in online and AI mode disable click event on board if its not your turn
     useEffect(() => {
-        //in online and AI mode disable click event on board if its not your turn
         const container = document.querySelector('.container');
         // console.log("turn", board.playerTurn)
         // console.log("gameinfo", gameInfo)
@@ -745,7 +757,20 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
         return () => {
             socket.off('sendMove')
         }
-    }, [board.playerTurn])
+    }, [board.playerTurn, gameInfo.playAs])
+
+    //on surrender go to winner page
+    useEffect(() => {
+        socket.on("surrenderConfirm", (data) => {
+            // console.log("surrenderConfirm", data)
+            setGameInfo(prev => {
+                const newGameInfo = { ...prev };
+                newGameInfo.gameOver = data.gameOver
+                return newGameInfo;
+            })
+        })
+    }, [socket])
+
 
     //receive the move from the server
     useEffect(() => {
@@ -1344,11 +1369,11 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
         // console.log("turn", board.playerTurn)
 
         if (board.board[oldCoordinates.row][oldCoordinates.column] == 1 && board.playerTurn != "goat") {
-            console.log("tiger turn ma goat drag garna khojeko")
+            // console.log("tiger turn ma goat drag garna khojeko")
             return;
         }
         if (board.board[oldCoordinates.row][oldCoordinates.column] == 0 && board.playerTurn != "tiger") {
-            console.log("goat turn ma tiger drag garna khojeko")
+            // console.log("goat turn ma tiger drag garna khojeko")
             return;
         }
 
@@ -1500,19 +1525,51 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
             newBoard.tigers.trapped = newTrappedTigers
             return newBoard;
         });
+
+
     }, [board.board])
 
     useEffect(() => {
-        // console.log("Turn changed")
+        //add sound
+        //on placing goat and tiger but no kill
+        if (prevKillCount == board.goats.killed) {
+            console.log("no kill move")
+            playMove()
+        }
+        else if (prevKillCount < board.goats.killed) {
+            console.log("kill move")
+            playKill()
+            setPrevKillCount(board.goats.killed)
+        }
+
+
+        if (gameInfo.history.length === 0)
+            return;
+        // console.log("Turn changed gameOver")
         const gameStatus = gameOver(board)
         // console.log("gameStatus", gameStatus)
         if (gameStatus === 0) {
+            playWin()
             setSelection(10)
         }
         else if (gameStatus === 1) {
+            playWin()
             setSelection(11)
         }
     }, [board.playerTurn])
+
+    useEffect(() => {
+        if (gameInfo.gameOver == 0) {
+            playWin()
+            setSelection(10)
+        }
+        else if (gameInfo.gameOver == 1) {
+            playWin()
+            setSelection(11)
+        }
+
+    }, [gameInfo.gameOver])
+
 
 
     return (
