@@ -1244,7 +1244,7 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
             })
 
             piece.addEventListener('dragend', (e) => {
-                console.log('drag end');
+                // console.log('drag end');
 
             })
 
@@ -1533,11 +1533,11 @@ const BoardComponent = ({ board, setBoard, gameInfo, setGameInfo, socket, setSel
         //add sound
         //on placing goat and tiger but no kill
         if (prevKillCount == board.goats.killed) {
-            console.log("no kill move")
+            // console.log("no kill move")
             playMove()
         }
         else if (prevKillCount < board.goats.killed) {
-            console.log("kill move")
+            // console.log("kill move")
             playKill()
             setPrevKillCount(board.goats.killed)
         }
