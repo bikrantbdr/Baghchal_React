@@ -25,7 +25,7 @@ const Container = styled.div`
   `
 
 function App() {
-  const socket = io('http://localhost:3000')
+  const socket = io('https://baghchal-socket.onrender.com/', { transports: ['websocket', 'polling', 'flashsocket'] })
   const BackendURL = "http://127.0.0.1:8000/api/v1/get_best_move"
   const [selection, setSelection] = useState(0)
   const [gameInfo, setGameInfo] = useState({
